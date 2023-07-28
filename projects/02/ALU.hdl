@@ -43,20 +43,18 @@ CHIP ALU {
 
     PARTS:
     // Zx zero the x input?
-    Mux16(a=true, b=false, sel=zx, out=zxsel);
-    And16(a=zxsel, b=x, out=zxout);
+    Mux16(a=x, b=false, sel=zx, out=zdx);
     
-    // Nx  negate the x input?
-    Not16(in=zxout, out=notzxout);
-    Mux16(a=zxout, b=notzxout, sel=nx, out=nxout);
+    // Nx negate the x input?
+    Not16(in=zdx, out=notzdx);
+    Mux16(a=zdx, b=notzdx, sel=nx, out=nxout);
     
     // Zy zero the y input?
-    Mux16(a=true, b=false, sel=zy, out=zysel);
-    And16(a=zysel, b=y, out=zyout);
+    Mux16(a=y, b=false, sel=zy, out=zdy);
     
     // Ny negate the y input?
-    Not16(in=zyout, out=notzyout);
-    Mux16(a=zyout, b=notzyout, sel=ny, out=nyout);
+    Not16(in=zdy, out=notzdy);
+    Mux16(a=zdy, b=notzdy, sel=ny, out=nyout);
 
     // f compute out = x + y (if 1) or x & y (if 0)
     // if (f == 0)  set out = x & y  // bitwise and
