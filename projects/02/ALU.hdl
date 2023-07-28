@@ -42,5 +42,43 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+    // Zx zero the x input?
+    Mux16(a=true, b=false, sel=zx, out=zxsel);
+    And16(a=zxsel, b=x, out=zxout);
+    
+    // Nx  negate the x input?
+    Not16(in=zxout, out=notzxout);
+    Mux16(a=zxout, b=notzxout, sel=nx, out=nxout);
+    
+    // Zy zero the y input?
+    Mux16(a=true, b=false, sel=zy, out=zysel);
+    And16(a=zysel, b=y, out=zyout);
+    
+    // Ny negate the y input?
+    Not16(in=zyout, out=notzyout);
+    Mux16(a=zyout, b=notzyout, sel=ny, out=nyout);
+
+    // f compute out = x + y (if 1) or x & y (if 0)
+    // if (f == 0)  set out = x & y  // bitwise and
+    // if (f == 1)  set out = x + y  // integer 2's complement addition
+    And16(a=nxout, b=nyout, out=nxoutAndnyout);
+    Add16(a=nxout, b=nyout, out=nxoutAddnyout);
+    Mux16(a=nxoutAndnyout, b=nxoutAddnyout, sel=f, out=fout);
+
+    // No negate the out output?
+    // NOTE 1: we are using outRightHalf and outLeftHalf to avoid the error
+    //         "cannot use output in internal chip part" (no recursion)
+    // NOTE 2: also avoid the error "sub bus of internal node must not be used",
+    //         e.g. caused by And(a=outLeftHand[7], b=true, out=ng);
+    Not16(in=fout, out=notFout);
+    Mux16(a=fout, b=notFout, sel=no, out[0..7]=outRightHalf, out[8..15]=outLeftHalf, out=out);
+    
+    // zr 1 if (out == 0), 0 otherwise
+    Or8Way(in=outRightHalf, out=or8way1);
+    Or8Way(in=outLeftHalf, out=or8way2);
+    Or(a=or8way1, b=or8way2, out=orzr);
+    Not(in=orzr, out=zr);
+
+    // ng 1 if (out < 0),  0 otherwise
+    And16(a[0..7]=outRightHalf, a[8..15]=outLeftHalf, b=true, out[15]=ng);
 }
