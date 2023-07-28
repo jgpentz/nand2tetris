@@ -59,9 +59,9 @@ CHIP ALU {
     // f compute out = x + y (if 1) or x & y (if 0)
     // if (f == 0)  set out = x & y  // bitwise and
     // if (f == 1)  set out = x + y  // integer 2's complement addition
-    And16(a=nxout, b=nyout, out=nxoutAndnyout);
-    Add16(a=nxout, b=nyout, out=nxoutAddnyout);
-    Mux16(a=nxoutAndnyout, b=nxoutAddnyout, sel=f, out=fout);
+    And16(a=nxout, b=nyout, out=xAndy);
+    Add16(a=nxout, b=nyout, out=xAddy);
+    Mux16(a=xAndy, b=xAddy, sel=f, out=fout);
 
     // No negate the out output?
     // NOTE 1: we are using outRightHalf and outLeftHalf to avoid the error
